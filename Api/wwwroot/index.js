@@ -1,8 +1,8 @@
-const constructListComponent = async (root) => {
-    let data;
-
-    const resp = await fetch("./items");
-    data = await resp.json();
+const constructListComponent = async (root, data = null) => {
+    if (data == null) {
+        const resp = await fetch("./items");
+        data = await resp.json();
+    }
 
     const renderItem = (item) => `
         <li>
@@ -22,4 +22,30 @@ const constructListComponent = async (root) => {
     render();
 }
 
+const submitSelectedItems = async (event) => {
+    event.preventDefault(); // Prevent the default form submission
+
+    const checkedCheckboxes = document.querySelectorAll("input[name='items']:checked");
+    const formData = new FormData();
+    checkedCheckboxes.forEach(cb => formData.append("items", cb.id));
+
+    try {
+        // Send a POST request with the selected items
+        const response = await fetch("./items", {
+            method: "POST",
+            body: formData
+        });
+
+        if (response.ok) {
+            const items = await response.json();
+            constructListComponent(document.querySelector("ul"), items);
+        } else {
+            alert("Failed to submit items. Please try again.");
+        }
+    } catch (error) {
+        alert("An error occurred while submitting items. Please try again.");
+    }
+}
+
 constructListComponent(document.querySelector("ul"));
+document.querySelector("form").addEventListener("submit", submitSelectedItems);

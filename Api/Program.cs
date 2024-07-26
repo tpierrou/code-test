@@ -1,8 +1,7 @@
-using Api.Domain;
-using Api.Models;
-using Microsoft.Extensions.Configuration;
+using Api;
 
 var builder = WebApplication.CreateBuilder(args);
+ServiceRegistrator.RegisterServices(builder.Services);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

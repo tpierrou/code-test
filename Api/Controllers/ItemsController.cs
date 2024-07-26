@@ -8,23 +8,54 @@ namespace Api.Controllers
     [Route("items")]
     public class ItemsController : ControllerBase
     {
+        private readonly IItemsService itemsService;
 
-        public ItemsController()
+        public ItemsController(IItemsService itemsService)
         {
+            this.itemsService = itemsService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemDto>>> Get()
         {
-            // TODO: Return items fetched from external API
-            return Array.Empty<ItemDto>();
+            try
+            {
+                var itemDtos = await itemsService.GetItems();
+
+                return Ok(itemDtos);
+            }
+            catch (HttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<IEnumerable<ItemDto>>> Post([FromForm]string[] items)
         {
-            // TODO: Return a list of the items selected based on the "items" array posted from the frontend
-            return Array.Empty<ItemDto>();
+            if(items == null || items.Length == 0)
+            {
+                return BadRequest("No items selected");
+            }
+
+            try
+            {
+                var itemDtos = await itemsService.GetItems(items);
+
+                return Ok(itemDtos);
+            }
+            catch (HttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "Internal Server Error");
+            }
         }
     }
 }
